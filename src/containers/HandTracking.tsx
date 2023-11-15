@@ -2,25 +2,23 @@ import React, { useCallback, useEffect, useRef } from "react";
 import Webcam from "react-webcam";
 import { css } from "@emotion/css";
 import { Camera } from "@mediapipe/camera_utils";
-import { Hands } from "@mediapipe/hands";
+import { Hands, Results } from "@mediapipe/hands";
 import { drawCanvas } from "../utils/drawCanvas";
 
 const HandTracking = () => {
-  const webcamRef = useRef(null);
-  const canvasRef = useRef(null);
-  const resultsRef = useRef();
+  const webcamRef = useRef<Webcam>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const resultsRef = useRef<Results>();
 
   /**
-   * 검출결과 (프레임마다 호출됨)
+   * 검출결과（프레임마다 호출됨）
    * @param results
    */
-  const onResults = useCallback((results) => {
+  const onResults = useCallback((results: Results) => {
     resultsRef.current = results;
 
-    const canvasCtx = canvasRef.current?.getContext("2d");
-    if (canvasCtx) {
-      drawCanvas(canvasCtx, results);
-    }
+    const canvasCtx = canvasRef.current!.getContext("2d")!;
+    drawCanvas(canvasCtx, results);
   }, []);
 
   // 초기 설정
@@ -40,10 +38,13 @@ const HandTracking = () => {
 
     hands.onResults(onResults);
 
-    if (webcamRef.current) {
-      const camera = new Camera(webcamRef.current.video, {
+    if (
+      typeof webcamRef.current !== "undefined" &&
+      webcamRef.current !== null
+    ) {
+      const camera = new Camera(webcamRef.current.video!, {
         onFrame: async () => {
-          await hands.send({ image: webcamRef.current.video });
+          await hands.send({ image: webcamRef.current!.video! });
         },
         width: 1280,
         height: 720,
@@ -52,15 +53,10 @@ const HandTracking = () => {
     }
   }, [onResults]);
 
-  /* 랜드마크들의 좌표를 콘솔에 출력 */
+  /*  랜드마크들의 좌표를 콘솔에 출력 */
   const OutputData = () => {
-    const results = resultsRef.current;
-
-    if (results && results.multiHandLandmarks) {
-      console.log(results.multiHandLandmarks);
-    } else {
-      console.error("Results or multiHandLandmarks are undefined.");
-    }
+    const results = resultsRef.current!;
+    console.log(results.multiHandLandmarks);
   };
 
   return (
@@ -75,7 +71,6 @@ const HandTracking = () => {
         screenshotFormat="image/jpeg"
         videoConstraints={{ width: 1280, height: 720, facingMode: "user" }}
       />
-
       {/* 랜드마크를 손에 표시 */}
       <canvas
         ref={canvasRef}
