@@ -1,4 +1,9 @@
-import pygame, math, time, os, random
+import pygame, time, os, random
+import cv2, sys, math
+import numpy as np
+import keyboard
+
+import hand_detector as ht
 
 pygame.init()
 
@@ -118,10 +123,45 @@ def rating(n):
         combo_effect2 = 1.3
         rate = "Perfect"
 
+###### START :: 웹캠, Hand detector ######
 
+# 2개의 랜드마크 사이의 거리 계산
+def get_distance(p1, p2):
+    return math.dist((p1[1], p1[2]), (p2[1], p2[2]))
+
+wCam = 320
+hCam = 240
+cap = cv2.VideoCapture(0)
+
+if not cap.isOpened():
+    print("카메라를 사용할 수 없는 상태입니다.")
+    sys.exit(
+        "카메라 연결을 확인해주세요."
+    )
+
+cap.set(3, wCam)
+cap.set(4, hCam)
+
+detector = ht.handDetector(detectionCon = 0.6)
+
+# 엄지, 검지, 중지, 약지, 새끼 손가락의 끝 좌표
+index_fingers = [4, 8, 12, 16, 20]
+
+###### END :: 웹캠, Hand detector ######
 while main:
     while ingame:
+        ########## START :: 웹캠, Hand detector ##########
+        ret, frame = cap.read() # 카메라 데이터 읽기
 
+        frame = detector.findHands(frame)
+        # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # OpenCV의 BGR을 Pygame의 RGB로 변환
+        # frame = np.rot90(frame)  # 화면을 90도 회전
+        # frame = pygame.surfarray.make_surface(frame)
+
+        lmList = detector.findPositions(frame, draw=False)
+
+        ########## END :: 웹캠, Hand detector ##########
+        
         if len(t1) > 0:
             rate_data[0] = t1[0][0]
         if len(t2) > 0:
@@ -133,7 +173,8 @@ while main:
         if len(t5) > 0:
             rate_data[4] = t5[0][0]
 
-        if Time > 0.4 * notesumt:
+        # 노트 생성, 생성 시간 설정
+        if Time > 0.7 * notesumt:
             notesumt += 1
             
             while a == aa:
@@ -159,7 +200,7 @@ while main:
 
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
@@ -212,21 +253,87 @@ while main:
                 if event.key == pygame.K_QUOTE: # KEY: '
                     keyset[4] = 0
 
+            
+        # '''
+        if len(lmList) != 0:
+            for i in index_fingers:
+                x, y = lmList[i][1], lmList[i][2]
+                # 엄지
+                if get_distance(lmList[4], lmList[5]) < get_distance(lmList[3], lmList[5]):
+                    # print("엄지 접힘")
+                    keyset[0] = 1
+                    if len(t1) > 0:
+                        if t1[0][0] > h/3:
+                            rating(1)
+                            del t1[0]
+                else:
+                    # print("엄지 펴짐")
+                    keyset[0] = 0
+                
+                # 검지
+                if get_distance(lmList[8], lmList[1]) < get_distance(lmList[7], lmList[1]):
+                    # print("검지 접힘")
+                    keyset[1] = 1
+                    if len(t2) > 0:
+                        if t2[0][0] > h/3:
+                            rating(2)
+                            del t2[0]
+                else:
+                    # print("검지 펴짐")
+                    keyset[1] = 0
+                
+                # 중지
+                if get_distance(lmList[12], lmList[0]) < get_distance(lmList[11], lmList[0]):
+                    # print("중지 접힘")
+                    keyset[2] = 1
+                    if len(t3) > 0:
+                        if t3[0][0] > h/3:
+                            rating(3)
+                            del t3[0]
+                else:
+                    # print("중지 펴짐")
+                    keyset[2] = 0
+                
+                # 약지
+                if get_distance(lmList[16], lmList[0]) < get_distance(lmList[15], lmList[0]):
+                    # print("약지 접힘")
+                    keyset[3] = 1
+                    if len(t4) > 0:
+                        if t4[0][0] > h/3:
+                            rating(4)
+                            del t4[0]
+                else:
+                    # print("약지 펴짐")
+                    keyset[3] = 0
+                
+                # 소지
+                if get_distance(lmList[20], lmList[0]) < get_distance(lmList[19], lmList[0]):
+                    # print("소지 접힘")
+                    keyset[4] = 1
+                    if len(t5) > 0:
+                        if t5[0][0] > h/2:
+                            rating(5)
+                            del t5[0]
+                else:
+                    # print("소지 펴짐")
+                    keyset[4] = 0
+        # '''
+
         screen.fill((0, 0, 0))
         
         # 프레임에 따라 움직임 최적화(감속)
         for i in range(len(keys)):
-            keys[i] += (keyset[i] - keys[i]) / (3.2 * (maxframe / fps))
+            keys[i] += (keyset[i] - keys[i]) / (2 * (maxframe / fps))
 
         # 텍스트의 움직임
         if Time > combo_time:
-            combo_effect += (0 - combo_effect) / (7 * (maxframe / fps))
+            combo_effect += (0 - combo_effect) / (2 * (maxframe / fps))
         if Time < combo_time:
-            combo_effect += (1 - combo_effect) / (7 * (maxframe / fps))
+            combo_effect += (1 - combo_effect) / (2 * (maxframe / fps))
 
-        combo_effect2 += (2 - combo_effect2) / (7 * (maxframe / fps))
+        combo_effect2 += (2 - combo_effect2) / (2 * (maxframe / fps))
 
-        miss_anim += (4 - miss_anim) / (14 * (maxframe / fps))
+        miss_anim += (4 - miss_anim) / (4 * (maxframe / fps))
 
         # gaer background
         pygame.draw.rect(screen, (0, 0, 0), (w/2 - w/8 - 110, -int(w/100), w/4 + 110, h + int(w/50)))
@@ -356,12 +463,19 @@ while main:
         screen.blit(combo_text, (w/2 - combo_text.get_width() / 2 - 50, (h / 12) * 4 - combo_text.get_height() / 2))
         screen.blit(rate_text, (w/2 - rate_text.get_width() / 2 - 50, (h / 12) * 8 - rate_text.get_height() / 2))
         screen.blit(miss_text, (w/2 - miss_text.get_width() / 2 - 50, (h / 12) * 4 - miss_text.get_height() / 2))
+        
+        # screen.blit(frame, (w/2, h/2)) # 웹캠 화면 출력
 
         pygame.display.flip()
 
         clock.tick(maxframe)
 
-main = False
-ingame = False
+        # cv2.imshow("Image", frame)
+        cv2.imshow("Image", cv2.resize(frame, (320, 240)))
 
+ingame = False
+main = False
+
+cap.release() # 비디오 캡처 객체 해제
+cv2.destroyAllWindows() # 영상 창 닫기
 pygame.quit()

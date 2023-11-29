@@ -1,5 +1,6 @@
 import cv2, sys, math
 import hand_detector as ht
+import keyboard
 
 def get_distance(p1, p2):
     return math.dist((p1[1], p1[2]), (p2[1], p2[2]))
@@ -14,7 +15,7 @@ if not cap.isOpened():
 cap.set(3, wCam)
 cap.set(4, hCam)
 
-detector = ht.handDetector(detectionCon = 0.7)
+detector = ht.handDetector(detectionCon = 0.4)
 
 # 엄지, 검지, 중지, 약지, 새끼 손가락의 끝 좌표
 index_fingers = [4, 8, 12, 16, 20]
@@ -33,7 +34,50 @@ while True:
         for i in index_fingers:
 
             x, y = lmList[i][1], lmList[i][2]
+            
+            '''
+            # 엄지
+            if get_distance(lmList[4], lmList[5]) < get_distance(lmList[3], lmList[5]):
+                if not keyboard.is_pressed('a'):  # 'a'가 눌려있지 않으면
+                    keyboard.press('a')
+            else:
+                if keyboard.is_pressed('a'):  # 'a'가 눌려있으면
+                    keyboard.release('a')
+            
+            # 검지
+            if get_distance(lmList[8], lmList[10]) < get_distance(lmList[8], lmList[11]):
+                if not keyboard.is_pressed('s'):  # 's'가 눌려있지 않으면
+                    keyboard.press('s')
+            else:
+                if keyboard.is_pressed('s'):  # 's'가 눌려있으면
+                    keyboard.release('s')
 
+            # 중지
+            if get_distance(lmList[12], lmList[6]) < get_distance(lmList[12], lmList[7]):
+                if not keyboard.is_pressed('d'):  # 'd'가 눌려있지 않으면
+                    keyboard.press('d')
+            else:
+                if keyboard.is_pressed('d'):  # 'd'가 눌려있으면
+                    keyboard.release('d')
+            
+            # 약지
+            if get_distance(lmList[16], lmList[18]) < get_distance(lmList[16], lmList[19]):
+                if not keyboard.is_pressed(';'):  # ';'가 눌려있지 않으면
+                    keyboard.press(';')
+            else:
+                if keyboard.is_pressed(';'):  # ';'가 눌려있으면
+                    keyboard.release(';')
+
+            # 소지
+            if get_distance(lmList[19], lmList[15]) < get_distance(lmList[20], lmList[15]):
+                if not keyboard.is_pressed("'"):  # "'"가 눌려있지 않으면
+                    keyboard.press("'")
+            else:
+                if keyboard.is_pressed("'"):  # "'"가 눌려있으면
+                    keyboard.release("'")
+            '''
+
+            # '''
             if get_distance(lmList[4], lmList[5]) < get_distance(lmList[3], lmList[5]):
                 # fingers = "0" # 접혔으면 0
                 print("엄지 접힘")
@@ -41,50 +85,35 @@ while True:
                 # fingers = "1" # 퍼졌으면 1
                 print("엄지 펴짐")
             
-            if get_distance(lmList[8], lmList[10]) < get_distance(lmList[8], lmList[11]):
+            if get_distance(lmList[8], lmList[14]) < get_distance(lmList[8], lmList[15]):
                 # fingers = "0" # 접혔으면 0
                 print("검지 접힘")
             else:
                 # fingers = "1" # 퍼졌으면 1
                 print("검지 펴짐")
 
-            if get_distance(lmList[12], lmList[6]) < get_distance(lmList[12], lmList[7]):
+            if get_distance(lmList[12], lmList[19]) < get_distance(lmList[12], lmList[20]):
                 # fingers = "0" # 접혔으면 0
                 print("중지 접힘")
             else:
                 # fingers = "1" # 퍼졌으면 1
                 print("중지 펴짐")
 
-            if get_distance(lmList[16], lmList[18]) < get_distance(lmList[16], lmList[19]):
+            if get_distance(lmList[16], lmList[3]) < get_distance(lmList[16], lmList[4]):
                 # fingers = "0" # 접혔으면 0
                 print("약지 접힘")
             else:
                 # fingers = "1" # 퍼졌으면 1
                 print("약지 펴짐")
             
-            if get_distance(lmList[19], lmList[15]) < get_distance(lmList[20], lmList[15]):
+            if get_distance(lmList[19], lmList[7]) < get_distance(lmList[20], lmList[7]):
                 # fingers = "0" # 접혔으면 0
                 print("소지 접힘")
             else:
                 # fingers = "1" # 퍼졌으면 1
                 print("소지 펴짐")
-
-    # if len(lmList) != 0:
-    #     # 특정 손가락의 위치에 따라 출력
-    #     for i in index_fingers:
-    #         x, y = lmList[i][1], lmList[i][2]
-
-    #         if y > hCam - 10:
-    #             print("엄지")
-    #         elif y > hCam - 50:
-    #             print("검지")
-    #         elif y > hCam - 100:
-    #             print("중지")
-    #         elif y > hCam - 150:
-    #             print("약지")
-    #         elif y > hCam - 200:
-    #             print("소지")
-
+            # '''
+            
     cv2.imshow("Image", frame)
 
     key = cv2.waitKey(5) & 0xFF # 키보드 입력 받기
@@ -92,4 +121,4 @@ while True:
         break
 
 cv2.destroyAllWindows() # 영상 창 닫기
-cap.release() # 비디오 캡처 객체 해재
+cap.release() # 비디오 캡처 객체 해제
