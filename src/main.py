@@ -5,6 +5,7 @@ import keyboard
 
 import hand_detector as ht
 
+pygame.mixer.pre_init(44100, -16, 16, 2048)
 pygame.init()
 
 w = 1600
@@ -43,6 +44,21 @@ ingame_font_path = os.path.join(Fpath, 'LeferiPointSpecialItalic.ttf')
 rate = "Ready"
 
 ingame_font_rate = pygame.font.Font(ingame_font_path, int(w / 26))
+
+# 피아노 사운드 파일 경로
+PSpath = os.path.join(Cpath, 'assets/sounds/piano')
+piano_C_path = os.path.join(PSpath, 'FX_piano01.mp3')
+piano_D_path = os.path.join(PSpath, 'FX_piano03.mp3')
+piano_E_path = os.path.join(PSpath, 'FX_piano05.mp3')
+piano_F_path = os.path.join(PSpath, 'FX_piano06.mp3')
+piano_G_path = os.path.join(PSpath, 'FX_piano08.mp3')
+
+# 피아노 사운드 로딩
+piano_C_sound = pygame.mixer.Sound(piano_C_path)
+piano_D_sound = pygame.mixer.Sound(piano_D_path)
+piano_E_sound = pygame.mixer.Sound(piano_E_path)
+piano_F_sound = pygame.mixer.Sound(piano_F_path)
+piano_G_sound = pygame.mixer.Sound(piano_G_path)
 
 # note 생성 함수
 def sum_note(n):
@@ -205,36 +221,42 @@ while main:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
                     keyset[0] = 1
+                    piano_C_sound.play()
                     if len(t1) > 0:
                         if t1[0][0] > h/3:
                             rating(1)
                             del t1[0]
                 if event.key == pygame.K_s:
                     keyset[1] = 1
+                    piano_D_sound.play()
                     if len(t2) > 0:
                         if t2[0][0] > h/3:
                             rating(2)
                             del t2[0]
                 if event.key == pygame.K_d:
                     keyset[2] = 1
+                    piano_E_sound.play()
                     if len(t3) > 0:
                         if t3[0][0] > h/3:
                             rating(3)
                             del t3[0]
                 if event.key == pygame.K_l:
                     keyset[2] = 1
+                    piano_E_sound.play()
                     if len(t3) > 0:
                         if t3[0][0] > h/3:
                             rating(3)
                             del t3[0]
                 if event.key == pygame.K_SEMICOLON: # KEY: ;
                     keyset[3] = 1
+                    piano_F_sound.play()
                     if len(t4) > 0:
                         if t4[0][0] > h/3:
                             rating(4)
                             del t4[0]
                 if event.key == pygame.K_QUOTE: # KEY: '
                     keyset[4] = 1
+                    piano_G_sound.play()
                     if len(t5) > 0:
                         if t5[0][0] > h/2:
                             rating(5)
@@ -262,6 +284,7 @@ while main:
                 if get_distance(lmList[4], lmList[5]) < get_distance(lmList[3], lmList[5]):
                     # print("엄지 접힘")
                     keyset[0] = 1
+                    piano_C_sound.play()
                     if len(t1) > 0:
                         if t1[0][0] > h/3:
                             rating(1)
@@ -274,6 +297,7 @@ while main:
                 if get_distance(lmList[8], lmList[1]) < get_distance(lmList[7], lmList[1]):
                     # print("검지 접힘")
                     keyset[1] = 1
+                    piano_D_sound.play()
                     if len(t2) > 0:
                         if t2[0][0] > h/3:
                             rating(2)
@@ -286,6 +310,7 @@ while main:
                 if get_distance(lmList[12], lmList[0]) < get_distance(lmList[11], lmList[0]):
                     # print("중지 접힘")
                     keyset[2] = 1
+                    piano_E_sound.play()
                     if len(t3) > 0:
                         if t3[0][0] > h/3:
                             rating(3)
@@ -298,6 +323,7 @@ while main:
                 if get_distance(lmList[16], lmList[0]) < get_distance(lmList[15], lmList[0]):
                     # print("약지 접힘")
                     keyset[3] = 1
+                    piano_F_sound.play()
                     if len(t4) > 0:
                         if t4[0][0] > h/3:
                             rating(4)
@@ -310,6 +336,7 @@ while main:
                 if get_distance(lmList[20], lmList[0]) < get_distance(lmList[19], lmList[0]):
                     # print("소지 접힘")
                     keyset[4] = 1
+                    piano_G_sound.play()
                     if len(t5) > 0:
                         if t5[0][0] > h/2:
                             rating(5)
@@ -438,13 +465,13 @@ while main:
 
         # s
         pygame.draw.rect(screen, (255 - 100 * keys[1], 255 - 100 * keys[1], 255 - 100 * keys[1]), (w / 2 - w / 18 - 100, (h / 48) * 39 + (h / 48) * keys[1], w / 27, h / 8))
-        pygame.draw.rect(screen, (50, 50, 50), (w / 2 - w / 18 - 100, (h / 48) * 39 + (h / 48) * keys[1], w / 27, h / 8), int(h / 150))
-        pygame.draw.rect(screen, (25, 25, 25), (w / 2 - w / 18 - 100, (h / 48) * 43 + (h / 48) * (keys[1] * 1.2), w / 27, h / 64), int(h / 150))
+        # pygame.draw.rect(screen, (50, 50, 50), (w / 2 - w / 18 - 100, (h / 48) * 39 + (h / 48) * keys[1], w / 27, h / 8), int(h / 150))
+        # pygame.draw.rect(screen, (25, 25, 25), (w / 2 - w / 18 - 100, (h / 48) * 43 + (h / 48) * (keys[1] * 1.2), w / 27, h / 64), int(h / 150))
 
         # ;
         pygame.draw.rect(screen, (255 - 100 * keys[3], 255 - 100 * keys[3], 255 - 100 * keys[3]), (w / 2 + w / 13.5 - 107, (h / 48) * 39 + (h / 48) * keys[3], w / 27, h / 8))
-        pygame.draw.rect(screen, (50, 50, 50), (w / 2 + w / 13.5 - 107, (h / 48) * 39 + (h / 48) * keys[3], w / 27, h / 8), int(h / 150))
-        pygame.draw.rect(screen, (25, 25, 25), (w / 2 + w / 13.5 - 107, (h / 48) * 43 + (h / 48) * (keys[3] * 1.2), w / 27, h / 64), int(h / 150))
+        # pygame.draw.rect(screen, (50, 50, 50), (w / 2 + w / 13.5 - 107, (h / 48) * 39 + (h / 48) * keys[3], w / 27, h / 8), int(h / 150))
+        # pygame.draw.rect(screen, (25, 25, 25), (w / 2 + w / 13.5 - 107, (h / 48) * 43 + (h / 48) * (keys[3] * 1.2), w / 27, h / 64), int(h / 150))
 
         # 중앙 동그라미
         pygame.draw.circle(screen, (180, 180, 180), (w / 2 - 60, (h / 24) * 20), (w / 240), int(h / 320))
