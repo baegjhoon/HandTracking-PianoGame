@@ -61,7 +61,7 @@ python main.py
 
 ![구현화면_키보드](https://github.com/baegjhoon/HandTracking-RhythmGame/assets/103083251/80bff825-0ef5-4cdd-96eb-06a42f2127ac)  
 
-![구현화면_제스처_볼륨조절](https://github.com/baegjhoon/HandTracking-RhythmGame/assets/103083251/e34c5e56-9480-47b5-a317-2360beb0c3fb)  
+![구현화면_제스처_볼륨조절](https://github.com/baegjhoon/HandTracking-RhythmGame/assets/103083251/73548bd2-26d1-4b3c-9bb4-a78cc892c312)  
 
 ---
 
